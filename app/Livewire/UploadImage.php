@@ -21,38 +21,44 @@ class UploadImage extends Component
     public function uploadImage()
     {
         $info = $this->createStoryFromImg($this->file);
-        dd($info['result']['description']);
-        $info = $this->sendRequest($info['result']['description']);
+        // dd($info['result']['description']);
+        $text = $this->sendRequest($info['result']['description']);
+        dd($text);
         // return $this->redirect('/info');
     }
 
     public function sendRequest($text)
     {
-        $authorizationToken = config('cloudflare.api_key');
-        $accountId = config('cloudflare.account_id');
+        try {
 
-        $url = 'https://api.cloudflare.com/client/v4/accounts/' . $accountId . '/ai/run/@cf/meta/llama-2-7b-chat-fp16';
+            $authorizationToken = config('cloudflare.api_key');
+            $accountId = config('cloudflare.account_id');
 
-        $response = Http::withToken(
-            $authorizationToken
-        )
-            ->post($url, [
-                'messages' => [
-                    [
-                        'role' => 'system',
-                        'content' => 'You are story teller. you have to create a short story from the given text.'
-                    ],
-                    [
-                        'role' => 'user',
-                        'content' => 'The user has provided text from that you have to create a short story for children ' . $text
+            $url = 'https://api.cloudflare.com/client/v4/accounts/' . $accountId . '/ai/run/@cf/meta/llama-2-7b-chat-fp16';
+
+            $response = Http::withToken(
+                $authorizationToken
+            )
+                ->post($url, [
+                    'messages' => [
+                        [
+                            'role' => 'system',
+                            'content' => 'You are story teller. you have to create a short story from the given text.'
+                        ],
+                        [
+                            'role' => 'user',
+                            'content' => 'The user has provided text from that you have to create a short story for children ' . $text
+                        ]
                     ]
-                ]
-            ]);
+                ]);
 
-        $responseBody = json_decode($response->getBody(), true);
-
-        dd($responseBody['result']['response']);
-        return  $responseBody['result']['response'];
+            $responseBody = json_decode($response->getBody(), true);
+            // dd($responseBody['result']['response']);
+            return  $responseBody['result']['response'];
+        } catch (\Exception $e) {
+            // dd($e);
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function createStoryFromImg($file)
@@ -64,7 +70,7 @@ class UploadImage extends Component
             // Prepare input for the AI service
             $input = [
                 'image' => array_values($imageArray),
-                'prompt' => 'Generate a caption for this image',
+                'prompt' => 'Generate a caption for this image by extracting all the details.',
                 'max_tokens' => 512,
             ];
 
