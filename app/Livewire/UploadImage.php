@@ -21,7 +21,6 @@ class UploadImage extends Component
     public function uploadImage()
     {
         $info = $this->createStoryFromImg($this->file);
-
         $sentiments = $this->sendRequest($info['result']['description']);
 
         return redirect()->back()->with(['text' => $info['result']['description'], 'sentiments' => $sentiments]);
@@ -52,29 +51,32 @@ class UploadImage extends Component
     public function createStoryFromImg($file)
     {
         try {
-            $imageData = file_get_contents($file->getRealPath());
-            $imageArray = unpack('C*', $imageData);
+            if (!empty($file)) {
 
-            // Prepare input for the AI service
-            $input = [
-                'image' => array_values($imageArray),
-                'prompt' => 'Generate a caption for this image by extracting all the details.',
-                'max_tokens' => 512,
-            ];
+                $imageData = file_get_contents($file->getRealPath());
+                $imageArray = unpack('C*', $imageData);
 
-            $authorizationToken = config('cloudflare.api_key');
-            $accountId = config('cloudflare.account_id');
-            $url = 'https://api.cloudflare.com/client/v4/accounts/' . $accountId . '/ai/run/@cf/llava-hf/llava-1.5-7b-hf';
+                // Prepare input for the AI service
+                $input = [
+                    'image' => array_values($imageArray),
+                    'prompt' => 'Generate a caption for this image by extracting all the details.',
+                    'max_tokens' => 512,
+                ];
 
-            $response = Http::withToken(
-                $authorizationToken
-            )
-                ->post($url, $input);
+                $authorizationToken = config('cloudflare.api_key');
+                $accountId = config('cloudflare.account_id');
+                $url = 'https://api.cloudflare.com/client/v4/accounts/' . $accountId . '/ai/run/@cf/llava-hf/llava-1.5-7b-hf';
 
-            if ($response->successful()) {
-                return $response->json();
-            } else {
-                return ['error' => 'Failed to get response from AI service'];
+                $response = Http::withToken(
+                    $authorizationToken
+                )
+                    ->post($url, $input);
+
+                if ($response->successful()) {
+                    return $response->json();
+                } else {
+                    return ['error' => 'Failed to get response from AI service'];
+                }
             }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
