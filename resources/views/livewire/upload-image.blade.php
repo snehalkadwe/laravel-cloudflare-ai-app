@@ -21,12 +21,14 @@
         <div class="absolute bottom-0 w-full p-6 bg-gray-50 border-t border-gray-200">
             <form class="space-y-3 text-center" method="post" enctype="multipart/form-data"
                 wire:submit.prevent="uploadImage">
+
                 <div
                     class="relative w-full h-10 border border-gray-300 rounded-lg overflow-hidden pl-3 pr-1 flex items-center">
                     <input type="file" name="file" id="file-upload" wire:model="file"
-                        class="w-1/2 h-full opacity-0 cursor-pointer absolute top-0 left-0 right-0 hidden"
-                        accept="image/*">
-                    <label for="file-upload" class="text-gray-500 font-medium truncate w-full h-full flex items-center">
+                        class="w-1/2 h-full opacity-0 cursor-pointer absolute top-0 left-0 right-0 " accept="image/*">
+
+                    <label for="file-upload" id="file-label"
+                        class="text-gray-500 font-medium truncate w-full h-full flex items-center">
                         No file selected
                     </label>
                     <button type="submit"
@@ -39,3 +41,12 @@
 
     </div>
 </div>
+<script>
+    const fileUpload = document.getElementById('file-upload');
+    const fileLabel = document.getElementById('file-label');
+
+    fileUpload.addEventListener('change', function(event) {
+    const fileName = event.target.files[0].name;
+        fileLabel.textContent = fileName ? fileName : 'No file selected';
+    });
+</script>
