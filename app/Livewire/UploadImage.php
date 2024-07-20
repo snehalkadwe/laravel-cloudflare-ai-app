@@ -6,12 +6,12 @@ use Livewire\Component;
 use Livewire\WithFileUploads;
 use Illuminate\Support\Facades\Http;
 
-
-
 class UploadImage extends Component
 {
     use WithFileUploads;
+
     public $file = "";
+    public $image_url;
 
     public function render()
     {
@@ -20,13 +20,24 @@ class UploadImage extends Component
 
     public function uploadImage()
     {
-        $info = $this->createStoryFromImg($this->file);
-        $sentiments = $this->sendRequest($info['result']['description']);
+        $this->validate([
+            'file' => 'image|max:1024', // 1MB Max
+        ]);
+
+        $image = $this->file;
+        $imagePath = $image->store('images', 'public');
+        $this->image_url = '/storage/' . $imagePath;
+
+        // Assuming you are using session to store this data
+        session()->put('image_url', $this->image_url);
+
+        $info = $this->createTextFromImg($this->file);
+        $sentiments = $this->sentimentAnalysis($info['result']['description']);
 
         return redirect()->back()->with(['text' => $info['result']['description'], 'sentiments' => $sentiments]);
     }
 
-    public function sendRequest($text)
+    public function sentimentAnalysis($text)
     {
         try {
 
@@ -48,12 +59,12 @@ class UploadImage extends Component
         }
     }
 
-    public function createStoryFromImg($file)
+    public function createTextFromImg($img)
     {
         try {
-            if (!empty($file)) {
+            if (!empty($img)) {
 
-                $imageData = file_get_contents($file->getRealPath());
+                $imageData = file_get_contents($img->getRealPath());
                 $imageArray = unpack('C*', $imageData);
 
                 // Prepare input for the AI service
@@ -80,6 +91,17 @@ class UploadImage extends Component
             }
         } catch (\Exception $e) {
             return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function deleteExistingImage()
+    {
+        if (session()->get('image_url')) {
+            $imagePath = storage_path('app/public/' . basename(session()->get('image_url')));
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
+            session()->forget('image_url');
         }
     }
 }
