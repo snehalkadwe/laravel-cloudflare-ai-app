@@ -1,5 +1,11 @@
 Documentation
 
+### Add env variables
+```bash
+CLOUDFLARE_API_KEY=
+CLOUDFLARE_ACCOUNT_ID=
+```
+
 ### Install Livewire:
 ```bash
 composer require livewire/livewire
