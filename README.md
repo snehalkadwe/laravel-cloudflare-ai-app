@@ -1,10 +1,21 @@
 Documentation
 
-Install Livewire:
+### Install Livewire:
+```bash
 composer require livewire/livewire
-2. Publish Livewire Assets:
+```
+
+### Publish Livewire Assets:
+```bash
 php artisan livewire:publish
-Create a template layout
+```
+
+### Create a template layout
+```bash
 PHP artisan livewire:layout
-4. Create a Livewire Component:
+```
+
+### Create a Livewire Component:
+```bash
 php artisan make:livewire upload-image
+```
