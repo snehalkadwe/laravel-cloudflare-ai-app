@@ -43,8 +43,8 @@ class UploadImage extends Component
 
             $authorizationToken = config('cloudflare.api_key');
             $accountId = config('cloudflare.account_id');
-
-            $url = 'https://api.cloudflare.com/client/v4/accounts/' . $accountId . '/ai/run/@cf/huggingface/distilbert-sst-2-int8';
+            $baseURL = config('cloudflare.url');
+            $url = $baseURL . $accountId . '/ai/run/@cf/huggingface/distilbert-sst-2-int8';
 
             $response = Http::withToken(
                 $authorizationToken
@@ -76,7 +76,8 @@ class UploadImage extends Component
 
                 $authorizationToken = config('cloudflare.api_key');
                 $accountId = config('cloudflare.account_id');
-                $url = 'https://api.cloudflare.com/client/v4/accounts/' . $accountId . '/ai/run/@cf/llava-hf/llava-1.5-7b-hf';
+                $baseURL = config('cloudflare.url');
+                $url = $baseURL . $accountId . '/ai/run/@cf/llava-hf/llava-1.5-7b-hf';
 
                 $response = Http::withToken(
                     $authorizationToken
